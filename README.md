@@ -1,36 +1,3 @@
-# 🚀 Get Started
-
-**This repo is where attendees go to continue their learning after your session — and your Copilot agent will help you set it up.**
-
-### Step 1: Open your repo
-
-Open this repo in a **Codespace** (click the green **Code** button → **Create a Codespace**) — or clone it locally. Then open **GitHub Copilot Chat**.
-
-### Step 2: Add your content
-
-Give the agent something to work with. Drag files into the Explorer panel — session abstracts, outlines, screenshots, notes — and drop them in one of two places:
-
-| Where to put it | What goes there | Who sees it |
-|---|---|---|
-| **`_remove-before-publish/`** | Internal reference materials (abstracts, outlines, screenshots, planning docs) | **Copilot only** — never published |
-| **`/docs/`, `/src/`, or repo root** | Lab instructions, demo code, sample data, getting-started guides | **Attendees** — published with the repo |
-
-> 💡 Not sure? Start by dropping your session abstract or outline into `_remove-before-publish/`. The agent will figure out what to do with it.
-
-### Step 3: Ask the Agent
-
-Once your content is in the repo, use these three phrases with Copilot to build out your session repo:
-
-| Phrase to use with Copilot | What it does | When to run it |
-|---|---|---|
-| **"Help me get started"** | Sets up session title, description, outcomes, and owners | After you've added your session abstract or outline to the repo |
-| **"Help me refine content"** | Organizes your session content into the repo | Each time you add or update content |
-| **"Help me finalize"** | Final review, cleanup, and publication prep | When you're ready to publish |
-
-> 💡 **These three phrases are just the starting point.** Copilot can do much more — try asking it to brainstorm next steps for attendees, generate code samples, or build out your repo structure. Don't be afraid to put it in plan mode and ask for what you need.
-
----
-
 <a name="start-building"></a>
 <br>
 <p align="center">
@@ -39,49 +6,63 @@ Once your content is in the repo, use these three phrases with Copilot to build 
 
 # [Microsoft Build 2026](https://build.microsoft.com)
 
-## 🔥 BRKXXX: SESSION TITLE
+## 🔥 BRK243: Claw and Agent Harness in Microsoft Foundry
 
 ### Session Description
 
-*Add Session Description*
-
-### 🏫 Getting started in a guided session
-
-To get started in a guided lab session:
-- <!-- step 1 -->
-- <!-- step 2 -->
-- <!-- step 3 -->
+Go deep on multi-agent systems built on Microsoft Foundry, featuring Claw agent patterns and the hosted agents architecture. Explore long-running agents with triggers, state management, and file access—all natively supported on Foundry. See how coding agents built with GitHub Copilot SDK and Claude Agent SDK integrate into multi-agent workflows using Microsoft Agent Framework. Learn how to coordinate, host, and operate these systems with observability and continuous evals.
 
 ### 🏠 Getting started in your own environment
 
 If you're following these steps at your own pace:
 - Clone this repository
 - Set up your development environment
-- <!-- step 3 -->
+- Configure Azure AI environment variables (see "Run the Agent Harness samples" below)
 
-### 🧠 Learning Outcomes
+### 🧪 Run the Agent Harness samples
 
-By the end of this session, you will be able to:
+This repository includes runnable .NET samples under `src/Agent-Harness`.
 
-- <!-- outcome 1 -->
-- <!-- outcome 2 -->
-- <!-- outcome 3 -->
+1. Install prerequisites:
+     - .NET 10 SDK
+     - Azure CLI (`az login`)
+2. Set environment variables:
 
-### 💬 Keep Learning with Copilot
+```powershell
+$env:AZURE_AI_PROJECT_ENDPOINT = "https://<your-project>.services.ai.azure.com/api/projects/<your-project-name>"
+$env:AZURE_AI_MODEL_DEPLOYMENT_NAME = "gpt-5.4"
+```
 
-Try these prompts with GitHub Copilot to explore the topics from this session. Open Copilot Chat in VS Code (`Ctrl+Alt+I` on Windows/Linux, `Cmd+Shift+I` on Mac), paste a prompt, and see what you learn. Try connecting the [Microsoft Learn MCP Server](#-microsoft-learn-mcp-server) for the latest official documentation.
+3. Build all sample projects from the repo root:
 
-Use these as a starting point — or write your own!
+```powershell
+$projects = @(
+    ".\\src\\Agent-Harness\\ConsoleReactiveFramework\\ConsoleReactiveFramework.csproj",
+    ".\\src\\Agent-Harness\\ConsoleReactiveComponents\\ConsoleReactiveComponents.csproj",
+    ".\\src\\Agent-Harness\\Harness_Shared_Console\\Harness_Shared_Console.csproj",
+    ".\\src\\Agent-Harness\\Harness_Shared_Console_OpenAI\\Harness_Shared_Console_OpenAI.csproj",
+    ".\\src\\Agent-Harness\\Harness_Step01_Research\\Harness_Step01_Research.csproj",
+    ".\\src\\Agent-Harness\\Harness_Step02_Research_WithBackgroundAgents\\Harness_Step02_Research_WithBackgroundAgents.csproj",
+    ".\\src\\Agent-Harness\\Harness_Step03_DataProcessing\\Harness_Step03_DataProcessing.csproj",
+    ".\\src\\Agent-Harness\\Harness_Step04_CodeExecution\\Harness_Step04_CodeExecution.csproj"
+)
 
-<!-- Prompts will be tailored to this session's content during repo setup. -->
+foreach ($p in $projects) {
+    dotnet build $p -nologo
+}
+```
 
-> *Prompts coming soon — check back after the session content is finalized.*
+4. Run individual steps:
 
-### 💻 Technologies Used
+```powershell
+dotnet run --project .\src\Agent-Harness\Harness_Step01_Research\Harness_Step01_Research.csproj
+dotnet run --project .\src\Agent-Harness\Harness_Step02_Research_WithBackgroundAgents\Harness_Step02_Research_WithBackgroundAgents.csproj
+dotnet run --project .\src\Agent-Harness\Harness_Step03_DataProcessing\Harness_Step03_DataProcessing.csproj
+dotnet run --project .\src\Agent-Harness\Harness_Step04_CodeExecution\Harness_Step04_CodeExecution.csproj
+```
 
-1. <!-- technology 1 -->
-1. <!-- technology 2 -->
-1. <!-- technology 3 -->
+For per-sample details and prompts to try, see `src/Agent-Harness/README.md`.
+
 
 ### 📚 Resources and Next Steps
 
@@ -108,17 +89,13 @@ For more info, other clients, and to post questions, visit the [Learn MCP Server
 
 ## Content Owners
 
-<!-- TODO: Add yourself as a content owner
-1. Change the src in the image tag to {your github url}.png
-2. Change INSERT NAME HERE to your name
-3. Change the github url in the final href to your url. -->
 
 <table>
 <tr>
-    <td align="center"><a href="http://github.com/yourGitHubHandle">
-        <img src="https://github.com/yourGitHubHandle.png" width="100px;" alt="INSERT NAME HERE"/><br />
-        <sub><b>INSERT NAME HERE</b></sub></a><br />
-            <a href="https://github.com/yourGitHubHandle" title="talk">📢</a>
+    <td align="center"><a href="http://github.com/sphenry">
+        <img src="https://github.com/sphenry.png" width="100px;" alt="Shawn Henry"/><br />
+        <sub><b>Shawn Henry</b></sub></a><br />
+            <a href="https://github.com/sphenry" title="talk">📢</a>
     </td>
 </tr></table>
 
