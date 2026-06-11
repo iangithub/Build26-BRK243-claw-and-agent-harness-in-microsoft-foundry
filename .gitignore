@@ -27,6 +27,7 @@ node_modules/
 __pycache__/
 *.pyc
 .venv/
+.pytest_cache/
 
 src/Agent-Harness/ConsoleReactiveComponents/obj
 src/Agent-Harness/ConsoleReactiveFramework/obj
