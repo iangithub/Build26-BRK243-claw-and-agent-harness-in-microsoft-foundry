@@ -8,12 +8,13 @@ protocols:
 resources:
   cpu: "0.5"
   memory: 1Gi
-environmentVariables:
-  # 值來自 azd 環境(azd env set ...);container 內不放任何 secret,
-  # Azure OpenAI 認證走 hosted agent 的 managed identity(Entra ID)
+# 值來自 azd 環境(azd env set ...);container 內不放任何 secret,
+# Azure OpenAI 認證走 hosted agent 的 managed identity(Entra ID)。
+# 注意:新版 hosted agent 後端用 snake_case 的 environment_variables;
+# ${VAR} 由 azd 在部署時從 azd 環境代換({{VAR}} 只在 init 腳手架時
+# 有效,部署時會原樣帶入,不要用)
+environment_variables:
   - name: AZURE_OPENAI_ENDPOINT
     value: ${AZURE_OPENAI_ENDPOINT}
   - name: AZURE_OPENAI_DEPLOYMENT_NAME
     value: ${AZURE_OPENAI_DEPLOYMENT_NAME}
-  - name: AZURE_OPENAI_API_VERSION
-    value: ${AZURE_OPENAI_API_VERSION}

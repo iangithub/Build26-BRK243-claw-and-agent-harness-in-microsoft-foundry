@@ -133,33 +133,69 @@ azd auth login
 az login
 ```
 
-### 3. 設定 azd 環境(Foundry project 與模型設定)
+### 3. 設定 azd 環境(部署到既有 Foundry 專案,已實測)
 
 ```powershell
 cd src/foundry-hermes-qa-agent
-azd env new foundry-hermes-qa      # 建立 azd 環境
+azd env new <env-name>
 azd env set AZURE_SUBSCRIPTION_ID <subscription-id>
+azd env set AZURE_TENANT_ID <tenant-id>
 azd env set AZURE_LOCATION <region>
 
-# agent.yaml 會把這兩個值注入 container 環境變數
+# 既有 Foundry 專案:endpoint 與 ARM resource id 兩者都要
+azd env set AZURE_AI_PROJECT_ENDPOINT "https://<account>.services.ai.azure.com/api/projects/<project>"
+azd env set FOUNDRY_PROJECT_ENDPOINT  "https://<account>.services.ai.azure.com/api/projects/<project>"
+azd env set AZURE_AI_PROJECT_ID "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.CognitiveServices/accounts/<account>/projects/<project>"
+
+# agent.yaml 的 environment_variables 會在部署時以 ${VAR} 從這裡代換
 azd env set AZURE_OPENAI_ENDPOINT "https://<resource>.openai.azure.com"
 azd env set AZURE_OPENAI_DEPLOYMENT_NAME "gpt-5.5"
 ```
 
-### 4. 部署
+### 4. Container Registry(既有專案若沒有 registry connection 才需要)
+
+remote build 需要專案掛一個 ACR connection。若 `azd deploy` 報
+`could not determine container registry endpoint`,依序建立:
 
 ```powershell
-azd up          # provision + package + deploy
-# 或分開:azd provision 然後 azd deploy
+# 4-1. 建立 ACR
+az acr create -n <acrName> -g <rg> --sku Basic --location <region>
+
+# 4-2. 給自己 Container Registry Tasks Contributor(remote build 推映像用)
+az role assignment create --assignee-object-id (az ad signed-in-user show --query id -o tsv) `
+  --assignee-principal-type User --role fb382eab-e894-4461-af04-94435c366c3f --scope <acr-resource-id>
+
+# 4-3. 給 Foundry 專案的 managed identity AcrPull(拉映像用;principal id 看
+#      az rest GET .../projects/<project> 回傳的 identity.principalId)
+az role assignment create --assignee-object-id <project-principal-id> `
+  --assignee-principal-type ServicePrincipal --role 7f951dda-4ed3-4680-a7ca-43fe172d538d --scope <acr-resource-id>
+
+# 4-4. 在專案上建立 ContainerRegistry connection(az rest PUT
+#      .../projects/<project>/connections/<name>?api-version=2025-04-01-preview,
+#      category=ContainerRegistry、authType=ManagedIdentity、target=<loginServer>)
+
+# 4-5. 告訴 azd 用哪個 registry
+azd env set AZURE_CONTAINER_REGISTRY_ENDPOINT "<acrName>.azurecr.io"
 ```
 
-`azd deploy` 完成後輸出會顯示 agent endpoint:
+### 5. 部署
+
+```powershell
+azd deploy --no-prompt
+```
+
+完成後輸出會顯示 playground 連結與 invocations endpoint:
 
 ```
-Agent endpoint: https://<account>.services.ai.azure.com/api/projects/<project>/agents/foundry-hermes-qa-agent/versions/1
+Agent endpoint (invocations): https://<account>.services.ai.azure.com/api/projects/<project>/agents/foundry-hermes-qa-agent/endpoint/protocols/invocations?api-version=v1
 ```
 
-### 5. 授權模型存取(重要)
+> 注意:`agent.yaml` 的環境變數必須用 snake_case 的 `environment_variables`
+> 搭配 `${VAR}`(azd 部署時代換)。`{{VAR}}` 模板只在 `azd ai agent init`
+> 腳手架時有效,部署時會原樣帶入容器;舊 schema 的 `environmentVariables`
+> 則完全不會被帶入。
+
+### 6. 授權模型存取(重要)
 
 Hosted agent 在雲端是用 **managed identity** 呼叫 Azure OpenAI,
 需在你的 Azure OpenAI 資源上授與 **Cognitive Services OpenAI User** 角色:
@@ -173,12 +209,13 @@ az role assignment create `
   --scope <你的 Azure OpenAI 資源的 resource id>
 ```
 
-### 6. 取得 invocations endpoint 並驗證
+### 7. 取得 invocations endpoint 並驗證
 
-invocations endpoint 格式:
+invocations endpoint 格式(部署輸出會直接給,也會寫進 azd 環境的
+`AGENT_FOUNDRY_HERMES_QA_AGENT_INVOCATIONS_ENDPOINT`):
 
 ```
-https://<account>.services.ai.azure.com/api/projects/<project>/agents/foundry-hermes-qa-agent/invocations
+https://<account>.services.ai.azure.com/api/projects/<project>/agents/foundry-hermes-qa-agent/endpoint/protocols/invocations?api-version=v1
 ```
 
 驗證:
@@ -197,7 +234,7 @@ azd ai agent monitor --follow      # 串流 container log
 指向這個 agent 的 invocations endpoint:
 
 ```powershell
-$env:HERMES_FOUNDRY_INVOCATIONS_ENDPOINT = "https://<account>.services.ai.azure.com/api/projects/<project>/agents/foundry-hermes-qa-agent/invocations?api-version=2025-05-15-preview"
+$env:HERMES_FOUNDRY_INVOCATIONS_ENDPOINT = "https://<account>.services.ai.azure.com/api/projects/<project>/agents/foundry-hermes-qa-agent/endpoint/protocols/invocations?api-version=v1"
 $env:HERMES_FOUNDRY_AGENT_SESSION_ID = "my-session"   # 選填
 az login
 cd ../Hermes-Foundry-Simple
