@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/AgentSchema/refs/heads/main/schemas/v1.0/ContainerAgent.yaml
+# Hosted Agent 定義:使用 Invocations Protocol(非 Responses Protocol)
+kind: hosted
+name: foundry-hermes-qa-agent
+protocols:
+  - protocol: invocations
+    version: 1.0.0
+resources:
+  cpu: "0.5"
+  memory: 1Gi
+environmentVariables:
+  # 值來自 azd 環境(azd env set ...);container 內不放任何 secret,
+  # Azure OpenAI 認證走 hosted agent 的 managed identity(Entra ID)
+  - name: AZURE_OPENAI_ENDPOINT
+    value: ${AZURE_OPENAI_ENDPOINT}
+  - name: AZURE_OPENAI_DEPLOYMENT_NAME
+    value: ${AZURE_OPENAI_DEPLOYMENT_NAME}
+  - name: AZURE_OPENAI_API_VERSION
+    value: ${AZURE_OPENAI_API_VERSION}
