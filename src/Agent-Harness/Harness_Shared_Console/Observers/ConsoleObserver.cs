@@ -1,5 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Observer 模式的抽象基底(ConsoleObserver)
+// 整個顯示層的擴充點。Runner 在串流生命週期的五個時機點回呼:
+// 1. ConfigureRunOptions —— agent 呼叫前(可設定 ResponseFormat 等)
+// 2. OnResponseUpdateAsync —— 每個串流 update(含 provider 原始事件)
+// 3. OnContentAsync —— 每個 AIContent(工具呼叫、錯誤、reasoning⋯)
+// 4. OnTextAsync —— 每段文字 delta
+// 5. OnStreamCompleteAsync —— 串流結束(可回傳 FollowUpAction
+//    驅動「問使用者」或「自動續跑」)
+// 全部方法都有 no-op 預設實作,子類別只需覆寫關心的時機點。
+// ============================================================
+
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 

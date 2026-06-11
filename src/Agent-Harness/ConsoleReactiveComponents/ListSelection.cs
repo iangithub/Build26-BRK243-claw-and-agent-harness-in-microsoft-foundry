@@ -1,5 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】清單選擇元件(ListSelection)
+// 渲染「上下鍵選擇」的選單:目前選取項目前面加 ">" 游標符號並以
+// 強調色顯示;可選配標題(支援多行)與底部的自由輸入列
+//(CustomTextPlaceholder)。主要用在工具核准(ToolApprovalObserver)
+// 與 plan 模式的後續提問等需要使用者做選擇的場景。
+// 與 TextInput 相同,按鍵邏輯由外部處理,本元件只負責渲染。
+// ============================================================
+
 using Harness.ConsoleReactiveFramework;
 
 namespace Harness.ConsoleReactiveComponents;

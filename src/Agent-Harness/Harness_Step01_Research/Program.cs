@@ -1,5 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Step01:互動式研究代理(Research Agent)
+// 本範例示範如何用 AsHarnessAgent() 把一個 IChatClient 包裝成
+// 功能完整的 HarnessAgent:內建 TodoProvider(待辦清單)、
+// AgentModeProvider(plan/execute 模式)、FileMemoryProvider(檔案記憶)、
+// ToolApproval(工具核准)、WebSearch 與 OpenTelemetry 追蹤。
+// 範例本身只需要補上兩件事:研究助理的自訂 instructions,
+// 以及一個把 HTML 轉成 Markdown 的本機 WebBrowsingTool。
+// 執行流程:使用者輸入研究主題 → agent 規劃並建立 todo 清單 →
+// 取得使用者核准 → 逐步執行研究 → 輸出含引用來源的報告。
+// ============================================================
+
 // This sample demonstrates how to use a HarnessAgent for interactive research tasks.
 // The HarnessAgent comes pre-configured with TodoProvider, AgentModeProvider, FileMemoryProvider,
 // ToolApproval, WebSearch, and OpenTelemetry — so this sample only needs custom instructions
@@ -25,18 +37,25 @@ using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using SampleApp;
 
+// 從環境變數讀取 Azure AI Foundry 專案端點與模型部署名稱(未設定時預設 gpt-5.4)。
 var endpoint = Environment.GetEnvironmentVariable("AZURE_AI_PROJECT_ENDPOINT") ?? throw new InvalidOperationException("AZURE_AI_PROJECT_ENDPOINT is not set.");
 var deploymentName = Environment.GetEnvironmentVariable("AZURE_AI_MODEL_DEPLOYMENT_NAME") ?? "gpt-5.4";
 
+// 模型的 context window 上限與單次輸出 token 上限;
+// HarnessAgent 會依這兩個數值決定何時觸發 in-loop compaction(對話歷史壓縮)。
 const int MaxContextWindowTokens = 1_050_000;
 const int MaxOutputTokens = 128_000;
 const string TracingSourceName = "Harness.Research";
 
+// 建立 OpenTelemetry 追蹤,把 span 寫到本機文字檔(方便事後檢視 agent 的每一步行為)。
 // Set up OpenTelemetry tracing that writes spans to a text file.
 // This captures all agent activity (tool calls, model invocations, compaction, etc.)
 // as well as HTTP requests made by the underlying HttpClient transport.
 using var tracerProvider = HarnessTracing.CreateFileTracerProvider(TracingSourceName);
 
+// 研究助理的系統指示(instructions):要求多來源交叉驗證、
+// 以 Markdown 呈現結果、inline 引用來源,並把最終報告存進 file memory,
+// 讓報告在對話歷史被 compaction 壓縮後仍可取回。
 // Create a HarnessAgent with the Harness providers (TodoProvider and AgentModeProvider)
 // and research-focused instructions including the mandatory planning workflow.
 var instructions =
@@ -63,6 +82,9 @@ var instructions =
     - In addition to returning the results to the user, save the final research report to file memory so it survives compaction and can be referenced later.
     """;
 
+// 建立 agent 的呼叫鏈:AIProjectClient(連 Foundry 專案)→ OpenAI Responses client →
+// AsIChatClient(指定模型部署)→ AsHarnessAgent(套上完整 Harness 能力)。
+// 注意:DisableFileAccess = true 表示此範例刻意關閉檔案存取(Step03 才會示範)。
 // Create the agent using AsHarnessAgent, which pre-configures function invocation,
 // per-service-call chat history persistence, in-loop compaction, TodoProvider, AgentModeProvider,
 // FileMemoryProvider, ToolApproval, WebSearch, AgentSkillsProvider, and OpenTelemetry.
@@ -100,6 +122,10 @@ AIAgent agent =
         },
     });
 
+// 啟動互動式 console 對話迴圈(由共用的 HarnessConsole 程式庫負責 UI 與事件處理)。
+// Observers 決定串流輸出要顯示哪些內容:web search 過程、錯誤、
+// 以及 BuildObserversWithPlanning 建立的「plan/execute 雙模式」觀察器組合;
+// CommandHandlers 則提供 /todos、/mode、/exit 等斜線指令。
 // Run the interactive console session using the shared HarnessConsole helper.
 await HarnessConsole.RunAgentAsync(
     agent,

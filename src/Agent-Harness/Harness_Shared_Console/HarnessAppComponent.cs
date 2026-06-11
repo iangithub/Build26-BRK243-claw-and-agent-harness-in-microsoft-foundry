@@ -1,5 +1,19 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】主畫面元件(HarnessAppComponent)
+// 整個 console UI 的根元件,負責版面與輸入事件:
+// - 版面由上而下:捲動輸出區(TextScrollPanel,DECSTBM scroll region)
+//   → 排隊訊息(TextPanel)→ agent 狀態列(spinner/用量)
+//   → 上下分隔線框住的底部面板 → 模式與指令說明列
+// - 底部面板依 BottomPanelMode 三態切換:TextInput(一般輸入)、
+//   ListSelection(回答追問/工具核准)、Streaming(串流中)
+// - 訂閱 KeyEventListener / ConsoleResizeListener:按鍵依模式分流處理,
+//   視窗縮放時整個畫面清除重排
+// - 追問(follow-up question)流程:逐題呼叫 Continuation 收集回答,
+//   全部答完後把累積的訊息交回 Runner.StartAgentTurnAsync 續跑
+// ============================================================
+
 using Harness.ConsoleReactiveComponents;
 using Harness.ConsoleReactiveFramework;
 using Harness.Shared.Console.Components;
@@ -333,6 +347,9 @@ public class HarnessAppComponent : ConsoleReactiveComponent<ConsoleReactiveProps
         });
     }
 
+    // 版面計算流程:先算各區塊高度(由下往上推)→ 算出捲動區底部列號
+    // scrollBottom → 設定 DECSTBM scroll region → 依序渲染各子元件。
+    // 視窗縮放或捲動區高度改變時,先清螢幕並 Invalidate 所有子元件強制重繪。
     /// <inheritdoc />
     public override void RenderCore(ConsoleReactiveProps props, HarnessAppComponentState state)
     {

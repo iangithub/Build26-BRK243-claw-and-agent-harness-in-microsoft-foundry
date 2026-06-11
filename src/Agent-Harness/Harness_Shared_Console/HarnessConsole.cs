@@ -1,5 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】整個共用 console 程式庫的靜態進入點
+// 各 Step 範例都呼叫 HarnessConsole.RunAgentAsync(agent, prompt, options)
+// 啟動互動 session。它負責組裝三大角色:
+// 1. HarnessAppComponent —— 畫面(捲動輸出區 + 輸入區 + 狀態列)
+// 2. HarnessAgentRunner —— 對話迴圈(把使用者輸入送進 agent、處理串流)
+// 3. Observers / CommandHandlers —— 輸出顯示策略與斜線指令
+// 並透過 agent.GetService<T>() 取出 AgentModeProvider 等內部服務、
+// 建立 AgentSession,最後等待 ShutdownTask(/exit)結束後還原終端機狀態。
+// ============================================================
+
 using System.Text;
 using Harness.ConsoleReactiveComponents;
 using Microsoft.Agents.AI;

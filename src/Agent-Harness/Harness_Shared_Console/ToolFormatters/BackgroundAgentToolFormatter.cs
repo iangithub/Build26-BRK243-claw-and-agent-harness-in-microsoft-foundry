@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】BackgroundAgents_* 工具呼叫的格式器(Step02 會用到)
+// 把背景代理生命週期的五種操作排成易讀的樹狀顯示:
+// StartTask(代理名稱 + 任務描述)、WaitForFirstCompletion(等待的
+// 任務編號)、GetTaskResults / ClearCompletedTask(任務編號)、
+// ContinueTask(任務編號 + 追加指示)。
+// ============================================================
+
 using System.Text;
 using Microsoft.Extensions.AI;
 

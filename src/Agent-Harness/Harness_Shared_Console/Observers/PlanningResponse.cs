@@ -1,5 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】plan 模式的結構化輸出 schema(PlanningResponse)
+// 這個類別會被轉成 JSON schema 餵給模型當 ResponseFormat,
+// [Description] attribute 的文字會直接成為 schema 說明、引導模型
+// 如何填寫各欄位 —— 是「用型別定義 prompt」的實例。
+// Clarification:questions 是一或多個澄清問題(可附選項);
+// Approval:questions 恰好一筆,message 放待核准的計畫摘要。
+// ============================================================
+
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 

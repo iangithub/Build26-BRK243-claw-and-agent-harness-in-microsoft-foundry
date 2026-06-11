@@ -1,5 +1,18 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Console session 的組態與預設組合工廠
+// 各 Step 範例客製行為的進入點,提供:
+// - Observers / CommandHandlers 屬性:null 表示用預設組合,
+//   空清單表示全部停用
+// - BuildDefaultObservers():標準組合(工具顯示、核准、錯誤、
+//   reasoning、用量、文字輸出)
+// - BuildObserversWithPlanning():把 TextOutputObserver 換成
+//   PlanningOutputObserver,啟用 plan/execute 雙模式工作流程
+// - BuildDefaultCommandHandlers():/exit、/todos、/mode、session 指令
+// - DefaultModeColors:plan=Cyan、execute=Green 的預設配色
+// ============================================================
+
 using System.Collections.ObjectModel;
 using Harness.Shared.Console.Commands;
 using Harness.Shared.Console.Observers;

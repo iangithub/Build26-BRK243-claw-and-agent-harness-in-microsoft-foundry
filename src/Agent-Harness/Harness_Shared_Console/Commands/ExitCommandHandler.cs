@@ -1,5 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】/exit 指令 —— 呼叫 RequestShutdown() 結束 console session,
+// 是 CommandHandler 最精簡的實作範例。
+// ============================================================
+
 using Microsoft.Agents.AI;
 
 namespace Harness.Shared.Console.Commands;

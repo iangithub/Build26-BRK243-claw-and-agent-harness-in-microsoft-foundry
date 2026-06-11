@@ -1,5 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】web_search 工具呼叫的格式器 —— 顯示搜尋關鍵字,
+// 例如「web_search (Microsoft Build 2026 dates)」。
+// ============================================================
+
 using Microsoft.Extensions.AI;
 
 namespace Harness.Shared.Console.ToolFormatters;

@@ -1,5 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Step03:資料處理代理(FileAccessProvider)
+// 本範例示範 HarnessAgent 的檔案存取能力:透過 FileAccess_* 工具
+//(ListFiles、ReadFile、SaveFile 等)讀取、分析 working/ 資料夾裡的
+// CSV 銷售資料,並把分析結果(報表、彙總)寫回成新檔案。
+// 與 Step01/02 的差異:這裡關閉了規劃(Todo/Mode)與 WebSearch,
+// 改開啟 FileAccessStore,把 agent 的世界限制在一個本機資料夾內,
+// 是「資料分析型 agent」的最小可行設定。
+// ============================================================
+
 // This sample demonstrates how to use a HarnessAgent with the default FileAccessProvider
 // to give an agent access to a folder of CSV data files. The agent can read, analyze,
 // and extract information from the data, then write results back as new files.
@@ -32,6 +42,9 @@ const string TracingSourceName = "Harness.DataProcessing";
 // Set up OpenTelemetry tracing that writes spans to a text file.
 using var tracerProvider = HarnessTracing.CreateFileTracerProvider(TracingSourceName);
 
+// 資料分析師的 instructions:先列出檔案再讀取、分析時逐步展示推理過程、
+// 輸出時依資料型態選格式(表格用 CSV、報告用 Markdown),
+// 並明確禁止未經要求就修改或刪除原始輸入資料。
 var instructions =
     """
     You are a data analyst assistant. You have access to a folder of data files via the FileAccess_* tools.
@@ -57,6 +70,9 @@ var instructions =
     - Always explain what you learned and what you are going to do next between tool calls, so the user can follow along with your thought process.
     """;
 
+// FileAccessStore 明確指向輸出目錄下的 working/ 資料夾
+//(.csproj 會在建置時把 working/**/* 複製過去),因此不受執行時的 cwd 影響;
+// FileSystemAgentFileStore 同時也是檔案存取的安全邊界 —— agent 只能碰這個資料夾。
 // Create the agent using AsHarnessAgent. The FileAccessStore is explicitly set to the
 // sample's working/ folder (copied to the output directory) so it works regardless of cwd.
 // Unused features are disabled.
@@ -85,6 +101,7 @@ AIAgent agent =
         },
     });
 
+// 啟動互動式 console 對話迴圈(未傳 options 時使用預設 observers 與指令)。
 // Run the interactive console session.
 await HarnessConsole.RunAgentAsync(
     agent,

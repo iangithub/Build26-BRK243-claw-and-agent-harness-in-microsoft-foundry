@@ -1,5 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Console 視窗大小變更的事件來源
+// .NET console 沒有原生的 resize 事件,因此這裡用 singleton 背景迴圈
+// 每 16ms 輪詢 Console.WindowWidth/Height,偵測到變化時發出
+// ConsoleResized 事件(帶新舊尺寸),讓 UI 元件得以重新排版。
+// ============================================================
+
 namespace Harness.ConsoleReactiveFramework;
 
 /// <summary>

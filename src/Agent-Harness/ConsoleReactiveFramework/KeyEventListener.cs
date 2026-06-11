@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】鍵盤輸入的事件來源
+// singleton 背景迴圈每 16ms 輪詢 Console.KeyAvailable,
+// 以 ReadKey(intercept: true) 攔截按鍵(不回顯到畫面),
+// 再透過 KeyPressed 事件廣播給訂閱的元件(例如 TextInput、ListSelection)。
+// 事件化之後,多個元件可以共用同一個輸入來源而不互相搶 ReadKey。
+// ============================================================
+
 namespace Harness.ConsoleReactiveFramework;
 
 /// <summary>

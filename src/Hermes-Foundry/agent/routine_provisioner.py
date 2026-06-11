@@ -28,6 +28,25 @@ Design constraints:
   timeouts, and a module-level cached ``DefaultAzureCredential``.
 """
 
+# ============================================================
+# 【檔案說明】每日維護 routine 的自動佈建器
+# Foundry Routine 必須綁定使用者實際啟動的 session(才能在該使用者的
+# sandbox 裡跑維護),但 session key 是 per-user 且部署新版就會換 ——
+# 事先手動建 routine 很脆弱,所以改由 agent 在第一次收到 hermes.rpc
+# 時「自己佈建自己」。
+# 設計約束(詳見上方英文 docstring):
+# 1. 絕不拖累使用者的 RPC —— fire-and-forget 背景工作,所有失敗
+#    只記 log 不往外丟
+# 2. 冪等且每個 process 對每個 session 最多成功一次(_provisioned
+#    快取 + _in_flight 去重)
+# 3. 驗證後修復 —— 既有 routine 與期望規格(_desired_routine)比對,
+#    漂移(被停用/排程錯/目標 session 錯)就用 PUT 修回來
+# 4. 零新相依 —— 只用 stdlib urllib + DefaultAzureCredential 的
+#    bearer token 直接呼叫 Foundry Routines REST API
+# 失敗冷卻策略:RBAC 拒絕(401/403)冷卻 30 分鐘(要等管理者授權),
+# 暫時性錯誤冷卻 5 分鐘,避免狂打 API。
+# ============================================================
+
 from __future__ import annotations
 
 import asyncio
@@ -178,6 +197,9 @@ def _has_required_routine_isolation_headers(headers: Mapping[str, str]) -> bool:
     )
 
 
+# 期望的 routine 規格:每日依 cron(預設 09:00 UTC)透過 Invocations API
+# 呼叫本 agent,輸入 {"kind": "hermes.maintenance", "jobs": ["all"]},
+# 並鎖定該使用者的 session_id —— 維護因此跑在正確的 sandbox 裡。
 def _desired_routine(session_id: str) -> dict[str, Any]:
     return {
         "description": (
@@ -331,6 +353,9 @@ def _set_cooldown(session_id: str, seconds: float) -> None:
         _cooldown_until[session_id] = time.monotonic() + seconds
 
 
+# 佈建主流程:GET 查既有 routine → 200 且規格相符就快取收工;
+# 規格漂移或 404 則 PUT 建立/修復;401/403 視為 RBAC 未授權,
+# 進入長冷卻並記 error log 提示管理者幫 managed identity 加權限。
 def _provision(session_id: str, routine_isolation_headers: Mapping[str, str]) -> None:
     endpoint = _project_endpoint()
     if not endpoint:

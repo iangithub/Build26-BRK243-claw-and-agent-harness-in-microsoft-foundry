@@ -1,5 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】主畫面的完整 UI 狀態(immutable record)
+// HarnessAppComponent 所有會變動的 UI 資料都集中在這個 record:
+// 視窗尺寸、底部面板模式(BottomPanelMode 三態)、輸入文字、
+// 追問佇列(PendingQuestions)與累積回覆、清單選擇狀態、
+// 捲動區內容、排隊訊息、模式顏色/名稱、spinner 與用量文字。
+// 由 HarnessConsoleUXStateDriver 以 with 運算式產生新狀態並
+// 呼叫 SetState() 觸發重繪 —— 單向資料流,狀態不在各元件間散落。
+// ============================================================
+
 using Harness.ConsoleReactiveFramework;
 using Microsoft.Extensions.AI;
 

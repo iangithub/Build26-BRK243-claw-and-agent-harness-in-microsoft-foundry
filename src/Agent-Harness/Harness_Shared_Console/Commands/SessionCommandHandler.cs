@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】/session-export 與 /session-import 指令
+// 示範 AgentSession 的可序列化特性:export 把目前 session
+//(完整對話歷史與 provider 狀態)序列化成 JSON 存檔;
+// import 反序列化後透過 ReplaceSessionAsync 熱替換進行中的 session,
+// 等於「存檔/讀檔」—— 對長時間執行的 agent 與除錯重現非常實用。
+// ============================================================
+
 using System.Text.Json;
 using Microsoft.Agents.AI;
 

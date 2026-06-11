@@ -1,3 +1,16 @@
+// ============================================================
+// 【檔案說明】「這則訊息是在跟我說話嗎?」判斷閘門
+// 群組聊天裡 agent 不該每句都接話。判斷分兩層:
+// - 確定性規則:email、安裝事件、1:1 聊天、明確 @mention(結構化
+//   entity 或 <at> 標籤)→ 直接回「該回應」
+// - 模糊情況(群組聊天沒有明確點名):丟給一個輕量 LLM judge 做
+//   YES/NO 判斷(例如用「你」指涉 agent 正在參與的討論串)
+// bot 在每個聊天室的顯示名稱要靠 Graph chat-members 查(inbound
+// activity 不帶),查過就以 conversationId 為 key 快取。
+// 執行順序刻意排在 AccessControlService 之後:未授權者先吃罐頭
+// 拒絕,授權後的閒聊才進到「要不要回」的過濾。
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi.Helpers;
 
 using System;

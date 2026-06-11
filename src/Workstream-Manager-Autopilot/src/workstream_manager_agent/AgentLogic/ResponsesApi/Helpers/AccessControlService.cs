@@ -1,3 +1,17 @@
+// ============================================================
+// 【檔案說明】存取控制服務 —— 三道安全閘門 + 管理指令
+// 1. 跨租戶守門:sender 不在本 agent 的租戶 → 制式拒絕,不進 LLM
+// 2. DM 限制:Teams 1:1 只有 manager(Graph /me/manager 解析,
+//    有快取)與 allowlist 成員能觸發 LLM;manager 可用 /access
+//    add/remove/list 管理名單(存 Azure Table Storage,
+//    PartitionKey = tenantId:agentUserId)
+// 3. 群組聊天限制:所有參與者都必須是 manager 或在 allowlist 內,
+//    否則回制式拒絕(可帶 {Manager}/{UnauthorizedParticipants} 占位符)
+// 另處理 /onboarding(manager 首次設定)與 /workstreamsummary 指令。
+// 設計重點:所有拒絕路徑都是 deterministic 罐頭回應,確保
+// 未授權的輸入「碰不到」LLM 與工具。
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi.Helpers;
 
 using Azure;

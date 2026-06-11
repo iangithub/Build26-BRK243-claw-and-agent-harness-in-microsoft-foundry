@@ -1,5 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】/mode 指令 —— 查看或切換 agent 模式
+// 「/mode」顯示目前模式;「/mode plan|execute」透過 AgentModeProvider
+// 切換 session 的模式並同步更新 UI 顏色。讓使用者可以不經過 agent
+// 直接改變模式(例如跳過規劃直接執行)。
+// ============================================================
+
 using Microsoft.Agents.AI;
 
 namespace Harness.Shared.Console.Commands;

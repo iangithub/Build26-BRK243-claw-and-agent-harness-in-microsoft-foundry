@@ -1,5 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】規劃模式 observer —— plan/execute 工作流程的核心
+// 依目前模式切換兩種行為:
+// - plan 模式:ConfigureRunOptions 強制 agent 以 PlanningResponse 的
+//   JSON schema 結構化輸出;文字先靜默收集,串流結束後解析 JSON ——
+//   Clarification(澄清問題)逐題轉成 FollowUpQuestion 問使用者;
+//   Approval(計畫核准)給「核准並切到 execute 模式」選單,
+//   核准後呼叫 modeProvider.SetMode() 切換模式並回覆 agent "Approved"。
+// - execute 模式:文字直接串流顯示,不做解析。
+// JSON 解析失敗時 fallback 成一般文字輸出,確保永遠有東西顯示。
+// ============================================================
+
 using System.Text;
 using System.Text.Json;
 using Harness.ConsoleReactiveComponents;

@@ -1,5 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Step02:背景代理(Background Agents)的委派模式
+// 本範例示範「父 agent + 背景 agent」的多代理協作架構:
+// 1. 先建立一個只開啟 WebSearch 的背景 agent(WebSearchAgent),
+//    其餘功能(Todo、Mode、FileMemory、FileAccess、ToolApproval)全部關閉。
+// 2. 父 agent(StockPriceResearcher)透過 BackgroundAgents = [webSearchAgent]
+//    取得 BackgroundAgentsProvider 提供的委派工具:可同時啟動多個
+//    背景任務(並行查詢多檔股票)、等待完成、取回結果、再清除任務。
+// 對照 Step01:這裡的重點不是單一 agent 的能力,而是「任務分工與並行」。
+// ============================================================
+
 // This sample demonstrates how to use the BackgroundAgentsProvider to delegate work to background agents.
 // A parent agent is given a list of stock tickers and instructed to find the closing price
 // for each ticker on December 31, 2025. It delegates the web searches to a background agent.
@@ -37,6 +48,8 @@ var projectClient = new AIProjectClient(
     new AIProjectClientOptions { RetryPolicy = new ClientRetryPolicy(3) });
 
 // --- Background agent: Web Search Agent ---
+// 背景 agent:只保留內建的 HostedWebSearchTool(網頁搜尋),
+// 用 Disable* 旗標關閉所有用不到的功能,讓它保持單純、便宜、可並行。
 // This agent uses the HarnessAgent's built-in HostedWebSearchTool to search the web.
 // Features not needed by this sub-agent are disabled.
 AIAgent webSearchAgent =
@@ -61,6 +74,10 @@ AIAgent webSearchAgent =
     });
 
 // --- Parent agent: Stock Price Researcher ---
+// 父 agent 的 instructions 明確定義五步驟工作流程:
+// 一次啟動所有背景任務(並行)→ 等待全部完成 → 取回結果 →
+// 以 Markdown 表格彙整 → 清除已完成任務釋放記憶體。
+// 並要求一律委派給 WebSearchAgent 查證,不可憑記憶回答。
 // This agent orchestrates the background agent to look up stock prices in parallel.
 var parentInstructions =
     """
@@ -85,6 +102,8 @@ var parentInstructions =
     """;
 
 // --- Parent agent: Stock Price Researcher ---
+// 父 agent 連自己的 WebSearch 都關閉(DisableWebSearch = true),
+// 確保所有查詢都走背景 agent;BackgroundAgents 清單就是它唯一的「工具來源」。
 // This agent orchestrates the sub-agent to look up stock prices in parallel.
 // Most features are disabled since the parent only needs SubAgentsProvider.
 AIAgent parentAgent =
@@ -111,6 +130,9 @@ AIAgent parentAgent =
         },
     });
 
+// 啟動互動式 console 對話迴圈;此範例不需要 plan/execute 模式,
+// 使用預設 observers 組合即可(BackgroundAgentToolFormatter 會把背景任務的
+// 啟動/等待/取回呼叫格式化顯示)。
 // Run the interactive console session.
 await HarnessConsole.RunAgentAsync(
     parentAgent,

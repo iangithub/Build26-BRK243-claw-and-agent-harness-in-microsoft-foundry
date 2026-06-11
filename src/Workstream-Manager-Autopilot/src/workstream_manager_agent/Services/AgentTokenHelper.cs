@@ -1,3 +1,15 @@
+// ============================================================
+// 【檔案說明】Agentic User Identity 的三段式 token 取得
+// A365 agent 以「agentic user」身分呼叫下游 API(Graph、MCP),
+// token 鏈分三步:
+// 1. 用 managed identity 取 blueprint token(agent 藍圖身分)
+// 2. 以 blueprint token 當 client assertion,換 agent instance 的
+//    AAD token(api://AzureAdTokenExchange)
+// 3. 再以兩者組合走 federated identity 流程,換出綁定特定使用者
+//   (UPN)與目標 scope 的最終 token
+// 這是 A365 平台的核心認證模式,值得單獨研讀。
+// ============================================================
+
 namespace WorkstreamManager.Services;
 
 using Azure.Core;

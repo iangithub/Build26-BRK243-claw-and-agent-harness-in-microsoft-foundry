@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】todos_* 工具呼叫的格式器
+// 把 TodoProvider 的工具呼叫排成樹狀顯示:todos_add 列出新增項目
+// 的標題(├─/└─ 樹枝符號)、todos_complete 列出完成的編號與原因、
+// todos_remove 列出移除編號 —— 使用者不用看 raw JSON 就能掌握
+// agent 對待辦清單做了什麼。
+// ============================================================
+
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.AI;

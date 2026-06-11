@@ -1,5 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】錯誤顯示 observer —— 攔截串流中的 ErrorContent,
+// 以紅色「❌ Error: ...」列出訊息、錯誤碼與細節。
+// ============================================================
+
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 

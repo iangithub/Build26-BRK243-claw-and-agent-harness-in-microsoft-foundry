@@ -1,5 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】UI 狀態操作的抽象介面(IUXStateDriver)
+// Observers、CommandHandlers、Runner 一律透過這個介面操作畫面,
+// 與具體的 console 渲染解耦(也方便測試時用假實作)。
+// 設計重點:介面刻意「窄」—— 不提供任何阻塞式輸入方法,
+// 需要使用者回答時是回傳 FollowUpQuestion 由 Runner 協調,
+// 維持單向資料流而不是在 observer 裡直接 ReadLine。
+// ============================================================
+
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 

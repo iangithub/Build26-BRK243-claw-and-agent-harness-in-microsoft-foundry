@@ -1,5 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】OpenAI Responses API 專屬的錯誤 observer
+// 處理 SDK「不會」轉成 ErrorContent 的兩種串流狀態:
+// - StreamingResponseFailedUpdate:回應失敗(顯示錯誤訊息與代碼)
+// - StreamingResponseIncompleteUpdate:回應被截斷 —— 若原因是
+//   content_filter,還會從原始 JSON 挖出各內容過濾類別的觸發明細
+//  (哪個類別被過濾、嚴重度),對齊排版顯示。
+// 示範如何透過 RawRepresentation 往下鑽到 provider 原生事件:
+// AgentResponseUpdate → ChatResponseUpdate → StreamingResponseUpdate。
+// ============================================================
+
 #pragma warning disable OPENAI001 // Suppress experimental API warnings for Responses API usage.
 
 using System.Text.Json;

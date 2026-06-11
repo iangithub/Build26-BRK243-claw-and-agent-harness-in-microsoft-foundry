@@ -1,3 +1,15 @@
+// ============================================================
+// 【檔案說明】agent 的 system prompt(系統指示)
+// 集中定義 LLM 的行為規則,重點段落:
+// - Work Item Tracker:四個工具(create/list/update/close_work_item)
+//   的使用時機,ETA 一律要求轉成 ISO 8601 絕對時間
+// - Silent capture:「整回合只有 create_work_item 且資訊齊全」時
+//   不回文字 —— 📌 emoji reaction 就是唯一的確認訊號,避免洗版
+// - Teams 行為約束:直接回覆即可,不准呼叫 send-message 工具送到
+//   目前的對話(那會造成重複訊息),也不准「擬稿後再問要不要送出」
+// 修改 agent 行為時,先來這裡調 prompt,而不是改程式邏輯。
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic;
 
 using WorkstreamManager.Models;

@@ -1,3 +1,10 @@
+// ============================================================
+// 【檔案說明】agent 業務邏輯的介面 —— 把「activity 路由」與
+// 「LLM 邏輯實作」解耦:A365AgentApplication 負責分流,實作
+// (ResponsesApiAgentLogicService)負責真正呼叫模型與工具。
+// 涵蓋 Teams 訊息、email/文件註解通知、安裝事件等處理方法。
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic;
 
 using Microsoft.Agents.A365.Notifications.Models;

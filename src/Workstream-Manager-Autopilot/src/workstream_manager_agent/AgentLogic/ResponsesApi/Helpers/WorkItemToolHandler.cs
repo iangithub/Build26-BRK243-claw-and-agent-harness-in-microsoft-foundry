@@ -1,3 +1,15 @@
+// ============================================================
+// 【檔案說明】工作項目工具的定義與執行(Function Calling 實作)
+// 提供四個工具給 Responses API:create_work_item、list_work_items、
+// update_work_item、close_work_item,定義以 raw JSON schema 字串撰寫,
+// 執行端 TryExecuteAsync 對接 WorkItemService(Azure Table Storage),
+// 每次異動會附進 changelog 留歷程。另支援 /workstreamsummary 指令
+// 產出工作流摘要。
+// emoji reaction 規則:create_work_item 成功時對原訊息貼 📌;
+// WorkItemCreatedThisTurn 旗標讓呼叫端避免再貼 👍(Teams 每個 bot
+// 對同一訊息只能有一個 reaction,後貼會蓋掉先貼 —— 📌 優先)。
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi.Helpers;
 
 using WorkstreamManager.Models;

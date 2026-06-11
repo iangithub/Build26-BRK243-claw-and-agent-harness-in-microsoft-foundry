@@ -1,5 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】文字輸入列元件(TextInput)
+// 渲染「提示字串 + 使用者輸入文字」的輸入列:文字超過寬度時自動折行,
+// 續行會縮排對齊到提示字串之後;文字為空時以深灰色顯示 placeholder。
+// CalculateHeight() 讓父元件(HarnessAppComponent)能在排版前
+// 預先算出輸入列需要幾列,動態調整捲動區的高度。
+// 注意:此元件只負責「畫」,按鍵處理在 HarnessAppComponent 的
+// KeyEventListener 訂閱中完成,輸入內容由 props 傳入。
+// ============================================================
+
 using Harness.ConsoleReactiveFramework;
 
 namespace Harness.ConsoleReactiveComponents;

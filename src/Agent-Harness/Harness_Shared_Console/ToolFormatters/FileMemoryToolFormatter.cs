@@ -1,5 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】FileMemory_* 工具呼叫的格式器 —— 顯示檔案記憶操作的
+// 重點資訊:存檔/讀檔/刪檔顯示檔名,搜尋顯示 regex 與檔名 pattern。
+// ============================================================
+
 using Microsoft.Extensions.AI;
 
 namespace Harness.Shared.Console.ToolFormatters;

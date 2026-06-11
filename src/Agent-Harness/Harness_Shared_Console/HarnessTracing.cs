@@ -1,5 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】OpenTelemetry 追蹤的工廠
+// 建立把 span 寫進本機文字檔的 TracerProvider:
+// 訂閱指定 source(agent 的所有活動)+ HttpClient instrumentation,
+// 並把 HTTP 請求/回應的 headers 與 body 全文塞進 span tag ——
+// 對「想看 agent 到底送了什麼 prompt 給模型」的學習與除錯非常有用。
+// 注意:trace 檔會包含完整對話內容,正式環境請勿這樣蒐集敏感資料。
+// ============================================================
+
 #pragma warning disable VSTHRD002 // Synchronous waits are required by OpenTelemetry enrichment callbacks.
 
 using OpenTelemetry;

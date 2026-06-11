@@ -1,5 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】/todos 指令 —— 從 TodoProvider 讀取目前 session 的
+// 待辦清單並列印(✓ 已完成 / ○ 未完成),不會觸發 agent 呼叫。
+// 讓使用者隨時檢視 agent 自己維護的工作清單進度。
+// ============================================================
+
 using Microsoft.Agents.AI;
 
 namespace Harness.Shared.Console.Commands;

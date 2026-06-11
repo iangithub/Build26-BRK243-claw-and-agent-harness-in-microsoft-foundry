@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】斜線指令處理器的抽象基底(CommandHandler)
+// 使用者輸入送往 agent 前,Runner 會依序詢問每個 handler 的
+// TryHandleAsync —— 第一個回傳 true 的攔截該輸入(短路),
+// 全部回 false 才會把輸入當成對話送給 agent。
+// GetHelpText() 回 null 代表此指令目前不可用(不顯示在說明列)。
+// ============================================================
+
 using Microsoft.Agents.AI;
 
 namespace Harness.Shared.Console.Commands;

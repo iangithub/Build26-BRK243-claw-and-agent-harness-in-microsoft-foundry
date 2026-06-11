@@ -1,5 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】工具核准 observer —— human-in-the-loop 的核心範例
+// 串流期間收集 ToolApprovalRequestContent(敏感工具的核准請求),
+// 即時顯示「⚠️ Approval needed」;串流結束後為每筆請求產生一個
+// ChoiceFollowUpQuestion 選單,提供四種選項:
+// 核准這次 / 永遠核准此工具 / 永遠核准此工具+這組參數 / 拒絕。
+// Continuation 把使用者的選擇轉成核准回應 content,包進 ChatMessage
+// 送回 agent,讓被擋下的工具呼叫繼續或中止 ——
+// 「don't-ask-again」就是靠 CreateAlwaysApprove* 回應實現的。
+// ============================================================
+
 using Harness.ConsoleReactiveComponents;
 using Harness.Shared.Console.ToolFormatters;
 using Microsoft.Agents.AI;

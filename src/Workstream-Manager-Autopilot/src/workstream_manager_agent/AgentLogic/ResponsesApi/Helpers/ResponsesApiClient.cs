@@ -1,3 +1,14 @@
+// ============================================================
+// 【檔案說明】OpenAI Responses API 的 HTTP client 封裝
+// 直接以 raw HTTP 呼叫 Azure OpenAI 的 Responses API(不經 SDK):
+// - 工具配置:M365 MCP servers 以 type="mcp" 原生掛載(帶 Bearer
+//   token、require_approval="never"),再加上本機 function 工具
+//  (work item CRUD)
+// - 以 previous_response_id 串接同一 conversation 的多輪對話
+// - 工具呼叫迴圈:模型回傳 function_call 時交給 localToolExecutor
+//   執行,把結果以 function_call_output 送回,直到產出最終文字
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi.Helpers;
 
 using Azure.Core;

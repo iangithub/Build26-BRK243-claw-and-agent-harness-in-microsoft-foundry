@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】WebBrowsingTool 的存取政策設定
+// 採「預設拒絕(deny by default)」設計:四個選項全部預設關閉,
+// 必須明確開啟才允許連線。AllowedHosts 白名單優先權最高,
+// 其次依公網/內網位址分流,AllowAllHosts 則完全停用邊界檢查
+//(僅適合隔離環境)。本範例(Program.cs)只開啟 AllowPublicNetworks。
+// ============================================================
+
 namespace SampleApp;
 
 /// <summary>

@@ -1,5 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】萬用格式器(責任鏈的最後一棒)—— CanFormat 永遠回 true,
+// 把任意工具的引數以「key: value」摘要列出(值截斷到 40 字),
+// 確保沒有專屬格式器的工具也有合理的顯示。
+// ============================================================
+
 using System.Text.Json;
 using Microsoft.Extensions.AI;
 

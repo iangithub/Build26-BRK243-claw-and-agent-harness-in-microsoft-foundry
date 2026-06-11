@@ -1,3 +1,11 @@
+// ============================================================
+// 【檔案說明】把 AgentTokenHelper 包成 Azure SDK 的 TokenCredential
+// 帶快取(到期前 5 分鐘視為失效)與 SemaphoreSlim 防止並發重複取 token。
+// ⚠️ 注意:快取不以 scope 區分 —— 同一個實例混用不同 audience 會
+// 拿到錯的 token,因此每種 scope 都要 new 一個新實例
+//(見 ResponsesApiAgentLogicServiceFactory 的說明)。
+// ============================================================
+
 namespace WorkstreamManager.Services;
 
 using System.IdentityModel.Tokens.Jwt;

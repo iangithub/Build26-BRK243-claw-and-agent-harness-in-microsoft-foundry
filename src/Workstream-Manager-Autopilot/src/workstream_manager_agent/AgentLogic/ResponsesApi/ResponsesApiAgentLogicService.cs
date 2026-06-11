@@ -1,3 +1,18 @@
+// ============================================================
+// 【檔案說明】業務邏輯核心:OpenAI Responses API 實作
+// NewActivityReceived 的處理管線(順序就是安全閘門的優先序):
+// 1. 跨租戶守門 —— 外部租戶的訊息直接回制式拒絕,不進 LLM
+// 2. 依通道改寫輸入 —— email/Teams/安裝事件分別組合 prompt 前綴
+// 3. DM 存取控制 —— 1:1 聊天只有 manager 能觸發 LLM
+// 4. 群組聊天存取控制 —— 所有參與者都要在 manager 核准的名單內
+// 5. 「這則訊息是在跟我說話嗎?」閘門(AddressedToAgentGate)——
+//    不是的話不回話,但仍跑被動工作項目偵測(偷偷記下承諾事項,
+//    捕捉到就只貼 📌 reaction,不打擾對話)
+// 6. 呼叫 ResponsesApiClient(掛上 work item 工具 + M365 MCP 工具)
+// 7. 回覆遞送 —— Teams 群組用 SendActivityAsync(才能帶 @mention 與
+//    引用 blockquote entity),1:1 視 EnableStreamingUpdates 走串流
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi;
 
 using WorkstreamManager.Models;

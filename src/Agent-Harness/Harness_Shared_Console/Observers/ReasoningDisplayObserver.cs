@@ -1,5 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Reasoning 顯示 observer —— 把推理模型的思考過程
+//(TextReasoningContent)以深洋紅色串流顯示,與一般回答區隔。
+// ============================================================
+
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 

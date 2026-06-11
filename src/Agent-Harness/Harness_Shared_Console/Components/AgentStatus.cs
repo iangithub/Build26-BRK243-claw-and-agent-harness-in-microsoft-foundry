@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】agent 狀態列元件(spinner + token 用量)
+// 顯示在分隔線上方的一行狀態:agent 執行中時以 Timer 每 100ms
+// 推進點字(braille)動畫 spinner,旁邊以深灰色顯示 token 用量文字。
+// 渲染前 SaveCursor、結束後 RestoreCursor,避免動畫干擾使用者
+// 正在輸入的游標位置。
+// ============================================================
+
 using Harness.ConsoleReactiveComponents;
 using Harness.ConsoleReactiveFramework;
 

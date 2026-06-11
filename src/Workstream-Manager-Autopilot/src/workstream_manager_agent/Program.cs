@@ -1,3 +1,18 @@
+// ============================================================
+// 【檔案說明】Workstream Manager Agent 的 ASP.NET Core 進入點
+// 這是一個 Microsoft Agent 365(A365)agent,部署到 Azure AI Foundry
+// 後發布進 Teams。本檔負責主機組態與 DI 註冊:
+// - 正式環境掛 Azure Key Vault 作為組態來源(DefaultAzureCredential)
+// - Agent SDK 三件套:HttpClient、IStorage(預設 in-memory)、
+//   AddAgent<A365AgentApplication>() 註冊 agent 本體
+// - 業務服務:ResponsesApiAgentLogicServiceFactory(LLM 邏輯)、
+//   AgentTokenHelper(token 取得)、WorkItemService(工作項目儲存)
+// - 可觀測性:A365 Kairo tracing(EnableKairoTracing)+ App Insights
+// - 端點:POST /api/messages 接收 Teams/A365 activity(交給
+//   IAgentHttpAdapter 處理),另有 /liveness、/readiness 探針
+//   與開發環境的 Swagger UI。
+// ============================================================
+
 using Azure.Identity;
 using WorkstreamManager.AgentLogic;
 using WorkstreamManager.AgentLogic.ResponsesApi;

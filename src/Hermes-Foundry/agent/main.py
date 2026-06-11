@@ -1,3 +1,22 @@
+# ============================================================
+# 【檔案說明】Hermes Foundry hosted agent 的進入點
+# 把 Hermes TUI 的後端搬上 Azure AI Foundry:本檔以
+# InvocationAgentServerHost 架起 Starlette 應用,接收 Invocations
+# Protocol 的請求,再透過 stdin/stdout 管線轉送給本機啟動的
+# Hermes gateway 子行程(tui_gateway.entry)。三大角色:
+# 1. _EventBuffer —— 每個 session 一個環形緩衝區,事件帶單調遞增
+#    的 seq,訂閱者斷線後可用 since_seq 續傳(偵測 replay gap)
+# 2. HermesChildBroker —— 子行程的生命週期與 JSON-RPC 路由中樞:
+#    寫入請求、讀取回應(以 id 配對 pending future)、把事件
+#    依 session_id 分發進對應的緩衝區
+# 3. handle_invoke —— 依 payload 的 kind 分流:
+#    hermes.rpc(一般 JSON-RPC,session.events 走 SSE 串流)、
+#    hermes.maintenance(排程的每日維護工作,結果寫入歷史檔
+#    並透過 maintenance.summary 事件回報給線上的 TUI)
+# 每次 RPC 也會觸發 routine_provisioner 確保該 session 的
+# 維護 routine 已在 Foundry 上建立(fire-and-forget)。
+# ============================================================
+
 from __future__ import annotations
 
 import asyncio
@@ -47,6 +66,10 @@ def _event_buffer_capacity() -> int:
     return value if value > 0 else _DEFAULT_EVENT_BUFFER_SIZE
 
 
+# 每個 session 的事件環形緩衝區:append 時蓋上單調遞增的 seq 再廣播給
+# 所有訂閱者;超過容量丟最舊事件並記下 last_dropped_seq,讓重新連線的
+# 訂閱者能偵測「漏接區間」(replay gap)。訂閱者佇列塞滿時直接踢除
+# 並送 _BUFFER_OVERFLOW 哨兵,要求 client 重連續傳。
 class _EventBuffer:
     """Per-session ring buffer with monotonic seq and live subscribers.
 
@@ -588,6 +611,16 @@ def _frame_session_id(frame: dict[str, Any]) -> str:
     return str(params.get("session_id") or "")
 
 
+# Hermes gateway 子行程的代理人(broker):
+# - _ensure_started():lazy 啟動子行程(找 Hermes 原始碼、挑 Python 3.11+
+#   直譯器、準備 HERMES_HOME 與工作目錄),等 gateway.ready 事件才算就緒;
+#   子行程死掉時自動重啟,並讓所有 pending 請求與訂閱者失敗
+# - request():寫一行 JSON-RPC 到子行程 stdin,以 id 配對 future 等回應
+#  (帶 id 的請求)或射後不理(無 id 的通知)
+# - _route_frame():讀 stdout 逐行解析 —— gateway.ready 解鎖啟動、
+#   有 id 的回應喚醒 pending future、事件依 session_id 進 _EventBuffer
+# - subscribe():訂閱某 session 的事件流(先補發 replay 再即時推送,
+#   閒置逾時 15 分鐘自動斷線)
 class HermesChildBroker:
     def __init__(self) -> None:
         self._proc: asyncio.subprocess.Process | None = None
@@ -873,6 +906,10 @@ class HermesChildBroker:
 _broker = HermesChildBroker()
 
 
+# 處理 hermes.rpc payload:一般 JSON-RPC 請求直接轉送子行程後回 JSON;
+# 特例 session.events 改回 SSE(StreamingResponse)—— 先回訂閱確認,
+# 接著若有未送達的維護結果先補發 maintenance.summary,再持續把
+# 該 session 的事件以 SSE frame 推給 TUI。
 async def _handle_rpc(payload: dict[str, Any]):
     rpc_request = payload.get("request")
     if not isinstance(rpc_request, dict):
@@ -958,6 +995,11 @@ async def _handle_rpc(payload: dict[str, Any]):
     return JSONResponse(response)
 
 
+# 處理 hermes.maintenance payload(由 Foundry Routine 排程觸發):
+# 以非阻塞 lock 確保同時只跑一個維護工作(撞到回 skipped);
+# 轉送 maintenance.run 給子行程執行,結果附加進 history.jsonl
+#(超過上限自動裁切),若該 session 有線上訂閱者就即時推送
+# maintenance.summary 事件並標記「已送達」,避免下次連線時重複補發。
 async def _handle_maintenance(payload: dict[str, Any]):
     run_id = str(payload.get("run_id") or uuid.uuid4())
     started_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -1098,6 +1140,10 @@ async def _run_gateway_maintenance(payload: dict[str, Any], timeout: float) -> d
     return result
 
 
+# Invocations Protocol 的總入口:解析 body(Routine 包裝的 {"input": ...}
+# 先經 _normalize_invoke_payload 拆封),依 kind 分流到 RPC 或維護處理;
+# request.state.session_id 是 Foundry 依 Entra 身分配發的 per-user session,
+# 順便觸發 routine_provisioner 確保此 session 的每日維護 routine 存在。
 @app.invoke_handler
 async def handle_invoke(request: Request):
     body = await request.body()

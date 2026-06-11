@@ -1,5 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Token 用量 observer —— 攔截 UsageContent,
+// 把 input/output/total 對照預算(context window 與輸出上限)
+// 算出百分比,更新到狀態列(📊 Tokens — ...)。
+// 讓使用者隨時掌握 context 消耗、預判 compaction 何時觸發。
+// ============================================================
+
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 

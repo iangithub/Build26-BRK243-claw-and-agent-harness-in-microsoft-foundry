@@ -1,3 +1,15 @@
+// ============================================================
+// 【檔案說明】業務邏輯服務的工廠
+// 每次處理 activity 時建立 ResponsesApiAgentLogicService:
+// 1. 取 MCP 工具用的 token(注意:每種 scope 要 new 一個
+//    AgentTokenCredential,因為其快取不分 scope,混用會拿到錯誤
+//    audience 的 token 被 Graph 打回)
+// 2. 另取 Microsoft Graph token(失敗可容忍 —— Graph 只是加值功能)
+// 3. 探索 MCP server 清單:依 McpDiscoverySource 組態,
+//    "API" 走 Agent365 API 動態查詢,"Manifest" 讀本機
+//    ToolingManifest.json(內含 Word/Excel/Mail/Calendar/ODSP 等)
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi;
 
 using System.Net.Http.Headers;

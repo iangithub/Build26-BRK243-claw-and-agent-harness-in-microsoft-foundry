@@ -1,5 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】plan 模式回應的兩種型別:Clarification(需要澄清,
+// 附選項讓使用者選)與 Approval(計畫完成,請求核准開始執行)。
+// 以字串形式序列化進 JSON schema,[Description] 告訴模型何時該用哪種。
+// ============================================================
+
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 

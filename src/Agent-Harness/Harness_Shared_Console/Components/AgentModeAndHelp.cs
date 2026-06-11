@@ -1,5 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】模式與指令說明列元件
+// 畫面最底下的固定一行:以模式顏色顯示「[plan]」這類目前模式標籤,
+// 後面接深灰色的可用指令說明(來自各 CommandHandler 的 help text)。
+// ============================================================
+
 using Harness.ConsoleReactiveComponents;
 using Harness.ConsoleReactiveFramework;
 

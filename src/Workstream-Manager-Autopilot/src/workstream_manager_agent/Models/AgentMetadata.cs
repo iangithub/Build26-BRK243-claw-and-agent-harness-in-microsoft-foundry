@@ -1,3 +1,9 @@
+// ============================================================
+// 【檔案說明】agent 身分中繼資料 —— 從 activity 的 recipient 解析而來:
+// agentic user id、agent instance id、blueprint(application)id、
+// 租戶 id 與 email,貫穿存取控制與 token 取得流程。
+// ============================================================
+
 namespace WorkstreamManager.Models;
 
 public class AgentMetadata 

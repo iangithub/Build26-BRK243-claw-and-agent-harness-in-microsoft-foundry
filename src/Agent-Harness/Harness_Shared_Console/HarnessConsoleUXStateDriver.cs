@@ -1,5 +1,18 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】IUXStateDriver 的預設實作 —— UI 狀態的唯一寫入口
+// Runner 與 Observers 都透過這個 driver 改畫面,不直接碰 console:
+// - 串流生命週期:BeginStreaming/StopSpinner/EndStreaming 切換底部面板
+// - 輸出寫入:WriteTextAsync 對「最後一個串流項目」就地附加文字
+//  (搭配 TextScrollPanel 的增量渲染);WriteInfo*/WriteUserInputEcho
+//   則新增定稿項目,並依前一項目型別決定是否補空行
+// - 追問管理:QueueFollowUpQuestions / AdvanceFollowUpQuestion 依題型
+//   切換 ListSelection(選擇題)或 TextInput(問答題)面板
+// 所有變更都在 _stateLock 內以 with 運算式產生新 state 再 SetState,
+// 確保多執行緒(串流 callback 與按鍵事件)下的狀態一致性。
+// ============================================================
+
 using Harness.ConsoleReactiveComponents;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;

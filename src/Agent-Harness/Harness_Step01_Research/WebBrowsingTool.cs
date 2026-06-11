@@ -1,5 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】本機網頁瀏覽工具(WebBrowsingTool)
+// 自訂的 AIFunction:下載指定 URL 的 HTML 並轉成 Markdown 回傳給 agent。
+// 兩個重點:
+// 1. 存取控制(CheckAccessAsync):依 WebBrowsingToolOptions 的政策
+//    決定放行或封鎖,並透過 DNS 解析判斷目標是公網還是內網,
+//    避免 SSRF(讓 agent 連到內部網路)的風險。預設全部封鎖。
+// 2. HtmlToMarkdownConverter:不依賴第三方套件,用 source-generated
+//    regex 把常見 HTML 元素轉成 Markdown,降低餵給模型的 token 數。
+// ============================================================
+
 using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
@@ -44,6 +55,8 @@ internal sealed partial class WebBrowsingTool : AIFunction
         CancellationToken cancellationToken) =>
         this._inner.InvokeAsync(arguments, cancellationToken);
 
+    // 工具主體:驗證 URL 格式與 scheme → 檢查存取政策 → 下載 HTML → 轉 Markdown。
+    // 錯誤一律以字串回傳給模型(而不是丟例外),讓 agent 能自行調整策略重試。
     [Description("Fetch the html from the given url as markdown")]
     private async Task<string> DownloadUriAsync(
         [Description("The URL to download")] string uri,
@@ -77,6 +90,9 @@ internal sealed partial class WebBrowsingTool : AIFunction
         }
     }
 
+    // 存取政策檢查順序:AllowedHosts 白名單 → 政策必定封鎖時短路 →
+    // DNS 解析判斷公網/內網 → 依 AllowPublicNetworks / AllowPrivateNetworks /
+    // AllowAllHosts 決定放行,最後預設封鎖。
     /// <summary>
     /// Checks whether the given URI is permitted by the configured access policy.
     /// Returns null if allowed, or an error message string if blocked.
@@ -167,6 +183,8 @@ internal sealed partial class WebBrowsingTool : AIFunction
         return false;
     }
 
+    // 判斷 IP 是否屬於私有網段:loopback、RFC 1918(10/8、172.16/12、192.168/16)、
+    // link-local 169.254/16(含雲端 metadata endpoint),以及 IPv6 的 fe80::/10 與 fc00::/7。
     /// <summary>
     /// Determines whether an IP address is private, loopback, or link-local.
     /// </summary>
@@ -213,6 +231,9 @@ internal sealed partial class WebBrowsingTool : AIFunction
         return false;
     }
 
+    // HTML → Markdown 轉換器:先抽出 <body>、移除 script/style/head/註解,
+    // 再依「區塊元素 → 行內元素 → 結構元素」的順序轉換,最後剝除殘餘標籤、
+    // 解碼 HTML entities 並壓縮多餘空行。
     /// <summary>
     /// A simple HTML to Markdown converter using regex-based transformations.
     /// Handles the most common HTML elements without requiring external dependencies.

@@ -1,3 +1,12 @@
+// ============================================================
+// 【檔案說明】工作項目的儲存層(Azure Table Storage)
+// WorkItemEntity:PartitionKey = "{tenantId}:{agentUserId}"(租戶 +
+// agent 身分隔離)、RowKey = GUID;Changelog 欄位以 JSON 陣列字串
+// 累積每次異動的歷程。WorkItemService 提供 CRUD 操作,
+// 以 DefaultAzureCredential(可指定 managed identity client id)
+// 連線,未設定 WorkItemsTableServiceUri 時工具會直接失敗並記 log。
+// ============================================================
+
 namespace WorkstreamManager.Services;
 
 using Azure.Data.Tables;

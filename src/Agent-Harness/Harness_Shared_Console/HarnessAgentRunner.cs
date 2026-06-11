@@ -1,5 +1,19 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】對話迴圈的協調者(HarnessAgentRunner)
+// UI 事件 → agent 呼叫的中樞。三個入口:
+// - OnUserInputAsync:一般輸入 —— 先嘗試斜線指令,否則開始 agent turn
+// - OnStreamingInputAsync:agent 還在串流時的輸入 —— 經由
+//   MessageInjectingChatClient 排入佇列,讓 agent 下個機會接收
+// - StartAgentTurnAsync:使用者答完追問(follow-up questions)後續跑
+// 核心 RunAgentLoopAsync:呼叫 RunStreamingAsync 逐筆把串流更新
+// 分發給所有 observers(OnContent/OnResponseUpdate/OnText),
+// 串流結束後收集 observers 回傳的 FollowUpAction ——
+// 有「問題」就暫停交回 UI 等使用者回答;只有「訊息」就直接帶著它再跑一輪。
+// _inputGate(SemaphoreSlim)確保同一時間只有一個 turn 在使用 session。
+// ============================================================
+
 using Harness.Shared.Console.Commands;
 using Harness.Shared.Console.Observers;
 using Microsoft.Agents.AI;
@@ -154,6 +168,10 @@ public sealed class HarnessAgentRunner : IDisposable
         }
     }
 
+    // agent 迴圈主體:只要還有待送訊息(nextMessages)就持續執行。
+    // 每一輪:讓 observers 設定 runOptions → 開始串流 → 把每個 update
+    // 分發給 observers 顯示 → 串流結束後收集 FollowUpAction 決定
+    // 「暫停問使用者」或「帶著訊息再跑一輪」。
     private async Task RunAgentLoopAsync(IList<ChatMessage> messages)
     {
         IList<ChatMessage>? nextMessages = messages;

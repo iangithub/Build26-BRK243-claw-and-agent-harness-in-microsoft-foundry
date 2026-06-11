@@ -1,3 +1,11 @@
+// ============================================================
+// 【檔案說明】emoji reaction 服務 —— 透過 Microsoft Graph 的
+// setReaction API 對 Teams 訊息貼表情:👍 =「我正在回覆這則」、
+// 📌 =「已記錄為工作項目」。需處理 team channel 與 chat 兩種
+// 不同的 Graph URL 形態;所有錯誤只記 log 不往外丟 ——
+// reaction 是輔助回饋,絕不能弄壞 agent 主流程。
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi.Helpers;
 
 using System;

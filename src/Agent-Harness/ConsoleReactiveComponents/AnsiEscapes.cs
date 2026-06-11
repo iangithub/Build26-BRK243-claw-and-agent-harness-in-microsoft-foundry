@@ -1,5 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】ANSI/VT100 escape sequence 工具集
+// 把裸的逸出序列(\x1b[...)包成可讀的具名 helper:
+// - DECSTBM scroll region(分割畫面的關鍵:上方捲動區 + 下方固定輸入區)
+// - 游標移動/儲存/還原、整行/整螢幕清除、前景色設定
+// - VisibleLength():剝除 escape sequence 後計算「實際可見」字元長度
+// - CountPhysicalLines():計算文字在指定終端寬度下會占用幾個實體列
+//  (同時考慮換行符號與自動換行),供捲動區排版使用。
+// ============================================================
+
 namespace Harness.ConsoleReactiveComponents;
 
 /// <summary>

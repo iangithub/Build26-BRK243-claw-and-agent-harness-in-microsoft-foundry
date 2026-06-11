@@ -1,5 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】串流結束後的「後續動作」型別(FollowUpAction)
+// Observer 在 OnStreamCompleteAsync 回傳這些 record 來驅動下一步:
+// - FollowUpMessage:直接附進下一輪 agent 輸入的訊息(不問使用者)
+// - TextFollowUpQuestion:自由輸入的問題(例如 plan 模式的回饋)
+// - ChoiceFollowUpQuestion:選擇題(例如工具核准的 Yes/No/Always)
+// 每個 Question 都帶一個 Continuation delegate:拿到使用者的回答後
+// 自行決定要回顯什麼、並產出(或不產出)要送給 agent 的 ChatMessage。
+// ============================================================
+
 using Microsoft.Extensions.AI;
 
 namespace Harness.Shared.Console;

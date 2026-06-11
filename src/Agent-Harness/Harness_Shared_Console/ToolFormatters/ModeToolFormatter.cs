@@ -1,5 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】mode_* 工具呼叫的格式器 —— agent 自己切換模式時
+//(mode_set)在工具呼叫列顯示目標模式名稱,例如「mode_set (execute)」。
+// ============================================================
+
 using Microsoft.Extensions.AI;
 
 namespace Harness.Shared.Console.ToolFormatters;

@@ -1,3 +1,18 @@
+// ============================================================
+// 【檔案說明】A365 activity 的總路由(AgentApplication 子類別)
+// Agent SDK 把進來的 activity 交給這裡分流:
+// - OnAgentic{Email,Word,Excel,PowerPoint}Notification:M365 各應用的
+//   通知(信件、文件註解),轉交對應的 Handle*NotificationAsync
+// - OnActivity(Message):Teams 訊息主流程 —— 先用 process-local 的
+//   ConcurrentDictionary 去重(Foundry hosted-agent 轉送是 at-least-once,
+//   冷啟動競態會造成 Bot Service 重送同一 activity),再依會話型態
+//   決定是否開 typing indicator 串流,最後交給
+//   ResponsesApiAgentLogicService.NewActivityReceived 執行業務邏輯;
+//   例外時把 FOUNDRY_AGENT_SESSION_ID 一併回給使用者方便查 log
+// - GetAgentFromRecipient:從 activity 的 recipient 解析出
+//   AgentMetadata(agentic user/app id、tenant)供後續邏輯使用
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic;
 
 using WorkstreamManager.AgentLogic.ResponsesApi;

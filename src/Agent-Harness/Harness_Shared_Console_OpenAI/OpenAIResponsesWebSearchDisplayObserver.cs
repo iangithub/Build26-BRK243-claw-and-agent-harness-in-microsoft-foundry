@@ -1,5 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】OpenAI Responses API 的 web search 過程顯示 observer
+// 攔截 WebSearchToolResultContent,依動作型別分流顯示:
+// - Search:搜尋關鍵字 + 來源網域的樹狀清單
+// - OpenPage:agent 開啟了哪個網頁
+// - FindInPage:在頁面內搜尋了什麼
+// 讓使用者即時看到 hosted web search 的每一步,而非只有最終答案。
+// 因為依賴 OpenAI.Responses 的型別,所以放在 _OpenAI 專屬程式庫,
+// 與 provider 無關的 Harness_Shared_Console 區隔開來。
+// ============================================================
+
 #pragma warning disable OPENAI001 // Suppress experimental API warnings for Responses API usage.
 
 using System.Text;

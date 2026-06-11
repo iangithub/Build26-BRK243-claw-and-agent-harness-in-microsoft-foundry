@@ -1,3 +1,11 @@
+// ============================================================
+// 【檔案說明】Teams activity 的工具集
+// 三類職責:組回覆 activity(群組聊天自動加「回覆引用 blockquote」,
+// 使用者有明確 @mention 時才回 @mention,避免不必要的 ping)、
+// 解析 <at> 標籤與 mention entity、從 activity 抽取身分資訊
+//(AAD object id、conversation 型態判斷等)。
+// ============================================================
+
 namespace WorkstreamManager.AgentLogic.ResponsesApi.Helpers;
 
 using System;

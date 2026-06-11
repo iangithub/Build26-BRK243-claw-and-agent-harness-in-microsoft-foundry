@@ -1,5 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Console 元件框架的核心基底類別
+// 借用 React 的 props/state 概念打造 console UI 元件模型:
+// - Props = 外部傳入的設定(含 X/Y/Width/Height 版面配置與子元件)
+// - State = 元件內部可變資料,SetState() 會觸發重繪
+// - Render() 以 record 的值相等比較做 memoization:props 與 state
+//   都沒變就跳過重繪;Invalidate() 清除快取以強制重繪(例如清螢幕後)。
+// 所有元件共用一把 RenderLock,避免多執行緒同時輸出 ANSI 序列造成畫面交錯。
+// ============================================================
+
 namespace Harness.ConsoleReactiveFramework;
 
 /// <summary>
@@ -71,6 +81,8 @@ public abstract class ConsoleReactiveComponent<TProps, TState> : ConsoleReactive
         this.Render();
     }
 
+    // 重繪前先比較 props/state 是否與上次相同(record 的值相等比較),
+    // 相同就直接 return —— 這是整個框架避免畫面閃爍與多餘輸出的關鍵。
     /// <summary>
     /// Renders the component using the current props and state.
     /// Uses a lock to prevent concurrent renders from multiple sources.

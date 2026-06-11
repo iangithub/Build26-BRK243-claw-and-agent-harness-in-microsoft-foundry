@@ -1,5 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】工具呼叫格式器的抽象基底(ToolCallFormatter)
+// 責任鏈(chain of responsibility)模式:Format() 依序找到第一個
+// CanFormat() 回 true 的 formatter,用它的 FormatDetail() 產生
+// 「工具名稱 + 細節」的顯示字串。BuildDefaultToolFormatters() 回傳
+// 內建組合(Todo/Mode/BackgroundAgent/FileMemory/WebSearch),
+// FallbackToolFormatter 永遠墊底接住所有未知工具。
+// 另提供從 FunctionCallContent.Arguments 安全取參數的 helper
+//(處理 JsonElement 與原生型別兩種情況)。
+// ============================================================
+
 using System.Text.Json;
 using Microsoft.Extensions.AI;
 

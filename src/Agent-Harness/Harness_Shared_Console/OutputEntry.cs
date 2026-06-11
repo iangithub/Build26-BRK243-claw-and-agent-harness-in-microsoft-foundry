@@ -1,5 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】輸出區項目的內部資料型別
+// OutputEntryType 區分項目種類(使用者輸入回顯/串流文字/資訊列/
+// 串流結尾/排隊訊息),HarnessConsoleUXStateDriver 用「上一個項目
+// 的型別」決定要不要在新項目前補空行,維持輸出的視覺節奏。
+// ============================================================
+
 namespace Harness.Shared.Console;
 
 /// <summary>

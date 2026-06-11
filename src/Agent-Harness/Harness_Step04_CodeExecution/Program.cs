@@ -1,5 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Step04:全功能代理 + Hyperlight 沙箱程式碼執行 + Skills
+// 系列範例的集大成:HarnessAgent 所有內建功能全開(沒有任何 Disable* 旗標),
+// 並額外加上兩個能力:
+// 1. HyperlightCodeActProvider —— 讓 agent 透過 execute_code 工具
+//    在 Hyperlight micro-VM 沙箱裡執行 Python(Wasm 後端),
+//    用「實際跑程式驗證」取代「憑空推理」。需要 KVM 等虛擬化支援。
+// 2. AgentSkillsProvider —— 自動探索 skills/ 資料夾下的技能
+//   (本範例附 regex-tester),讓 agent 依 SKILL.md 的工作流程辦事。
+// 建議試玩:「Help me write a regex that matches valid email addresses, then test it.」
+// ============================================================
+
 // This sample demonstrates a HarnessAgent with ALL features enabled, plus:
 // - Hyperlight CodeAct (HyperlightCodeActProvider) for sandboxed Python code execution
 // - Skills (AgentSkillsProvider) discovering a local "regex-tester" skill
@@ -37,11 +49,16 @@ const string TracingSourceName = "Harness.CodeExecution";
 // Set up OpenTelemetry tracing that writes spans to a text file.
 using var tracerProvider = HarnessTracing.CreateFileTracerProvider(TracingSourceName);
 
+// 建立 Hyperlight 程式碼執行 provider:Python 直譯器以 Wasm guest module 形式
+// 載入 micro-VM,與宿主機完全隔離;模組路徑由 NuGet 套件自動解析。
 // Create the HyperlightCodeActProvider with the Python/Wasm backend.
 // The guest module path is resolved automatically from the Hyperlight.HyperlightSandbox.Guest.Python NuGet package.
 using var codeAct = new HyperlightCodeActProvider(
     HyperlightCodeActProviderOptions.CreateForWasm(PythonGuestModule.GetModulePath()));
 
+// instructions 的核心原則:需要計算/驗證/測試時一律寫 Python 用 execute_code
+// 實際執行;任務符合某個 skill 的描述時依其指示與參考資料辦事;
+// 複雜任務用 todo 拆解、用 web search 查資料、把重要發現存進 file memory。
 var instructions =
     """
     ## Technical Assistant Instructions
@@ -78,6 +95,9 @@ var instructions =
     - If applicable, save final results to file memory.
     """;
 
+// 組裝 agent:不設任何 Disable* 旗標(全功能),
+// 透過 AIContextProviders 掛上 Hyperlight CodeAct,
+// FileMemoryStore 指向本機 agent-files/ 讓記憶跨 session 保留。
 // Create the agent with ALL HarnessAgent features enabled plus Hyperlight CodeAct.
 // No Disable* flags are set — TodoProvider, AgentModeProvider, FileMemory, FileAccess,
 // ToolApproval, WebSearch, and AgentSkillsProvider are all active.
@@ -106,6 +126,8 @@ AIAgent agent =
         },
     });
 
+// 啟動互動式 console 對話迴圈,套用 plan/execute 雙模式 observers
+// 與預設斜線指令(/todos、/mode、/exit)。
 // Run the interactive console session using the shared HarnessConsole helper.
 await HarnessConsole.RunAgentAsync(
     agent,

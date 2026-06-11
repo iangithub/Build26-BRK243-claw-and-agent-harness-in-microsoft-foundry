@@ -1,5 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】Memoization 小工具(對應 React 的 useMemo 概念)
+// 快取 mapper 的計算結果,只有輸入值改變時才重新計算,
+// 供元件在 RenderCore 裡避免每次重繪都做昂貴的版面運算(例如換行切割)。
+// ============================================================
+
 namespace Harness.ConsoleReactiveFramework;
 
 /// <summary>

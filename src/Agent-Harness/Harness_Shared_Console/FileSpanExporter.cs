@@ -1,5 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】把 OpenTelemetry span 寫成人類可讀文字檔的 exporter
+// 不依賴任何 OTLP collector,每個 span 輸出成一個區塊:
+// 時間戳、操作名稱、耗時、狀態,加上所有 tags 與 events。
+// 由 HarnessTracing 以 SimpleActivityExportProcessor 掛載使用。
+// ============================================================
+
 using System.Diagnostics;
 using System.Globalization;
 using OpenTelemetry;

@@ -1,5 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】靜態文字面板元件(TextPanel)
+// 把一組「已渲染好的字串」(可含 ANSI 色彩與換行)垂直畫在固定區域,
+// 用於非捲動區的動態內容(例如 agent 狀態列)。渲染時以
+// CountPhysicalLines/VisibleLength 計算自動換行後的實體列數,
+// 內容比元件高度短時會把剩餘列清空,避免殘影。
+// ============================================================
+
 using Harness.ConsoleReactiveFramework;
 
 namespace Harness.ConsoleReactiveComponents;

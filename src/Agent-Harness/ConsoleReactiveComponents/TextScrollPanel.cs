@@ -1,5 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+// ============================================================
+// 【檔案說明】捲動輸出面板元件(TextScrollPanel)
+// 負責 agent 對話輸出區(畫面上方的捲動區)的增量渲染:
+// - 已輸出的項目視為「定稿」,不再重畫(讓終端機自然捲動);
+// - 只有最後一個項目視為「動態」,每次重繪(支援串流文字逐步長大);
+// - 以 _lastItemOffsetFromBottom 記住最後項目的起始位置,
+//   重繪時把游標移回該處覆寫,實現串流更新的效果。
+// 這是整個 harness 串流輸出體驗的核心技巧。
+// ============================================================
+
 using Harness.ConsoleReactiveFramework;
 
 namespace Harness.ConsoleReactiveComponents;
@@ -56,6 +66,8 @@ public class TextScrollPanel : ConsoleReactiveComponent<TextScrollPanelProps, Te
 
         int bottomRow = props.Y + props.Height - 1;
 
+        // 增量渲染的起點:從「上次的最後一個項目」開始重畫
+        //(它可能還在串流中持續變長),更早的項目已定稿、不再碰。
         // Determine the first item to render. If we previously rendered items,
         // re-render the last one (it may have changed/grown) from its stored position.
         int startIndex = this._renderedCount > 0 ? this._renderedCount - 1 : 0;
