@@ -20,6 +20,9 @@ METHOD_NOT_FOUND = -32601   # 未支援的 method
 INVALID_PARAMS = -32602     # prompt.submit 缺 input 與 message
 INTERNAL_ERROR = -32603     # 其他未預期例外
 
+# --- Hermes gateway 相容錯誤碼 ---
+ERR_SESSION_BUSY = 4009            # turn 進行中又收到 prompt.submit(同真 gateway)
+
 # --- 本 proxy 自訂的 Foundry 相關錯誤碼(-32000 ~ -32099 為實作保留區段)---
 ERR_MISSING_ENDPOINT = -32000      # 缺 HERMES_FOUNDRY_INVOCATIONS_ENDPOINT
 ERR_AUTH = -32001                  # DefaultAzureCredential 取 token 失敗

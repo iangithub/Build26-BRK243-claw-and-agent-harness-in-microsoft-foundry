@@ -34,10 +34,12 @@ class StubCredential:
         self.expires_in = expires_in
         self.calls = 0
         self.scopes = None
+        self.kwargs = None
 
     def get_token(self, *scopes, **kwargs):
         self.calls += 1
         self.scopes = scopes
+        self.kwargs = kwargs
         return AccessToken("stub-token", int(time.time()) + self.expires_in)
 
 
@@ -46,8 +48,12 @@ class FailingCredential:
         raise RuntimeError("no credential available")
 
 
-def make_client(handler, endpoint=ENDPOINT, session_id=None, credential=None):
-    settings = Settings(invocations_endpoint=endpoint, agent_session_id=session_id)
+def make_client(handler, endpoint=ENDPOINT, session_id=None, credential=None, tenant_id=None):
+    settings = Settings(
+        invocations_endpoint=endpoint,
+        agent_session_id=session_id,
+        tenant_id=tenant_id,
+    )
     return FoundryClient(
         settings,
         http_client=httpx.Client(transport=httpx.MockTransport(handler)),
@@ -87,6 +93,19 @@ def test_submit_prompt_sends_expected_request():
         "input": "你好",
     }
     assert credential.scopes == (TOKEN_SCOPE,)
+    assert credential.kwargs == {}
+
+
+def test_tenant_id_is_passed_to_get_token_when_configured():
+    captured = []
+    credential = StubCredential()
+    client = make_client(
+        ok_handler(captured), credential=credential, tenant_id="tenant-42"
+    )
+
+    client.submit_prompt("hi")
+
+    assert credential.kwargs == {"tenant_id": "tenant-42"}
 
 
 def test_missing_endpoint_raises_config_error():

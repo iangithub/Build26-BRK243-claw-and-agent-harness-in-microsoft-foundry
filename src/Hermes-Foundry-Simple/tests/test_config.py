@@ -7,6 +7,7 @@
 from hermes_foundry_proxy.config import (
     ENDPOINT_ENV,
     SESSION_ID_ENV,
+    TENANT_ID_ENV,
     Settings,
     build_invocation_url,
 )
@@ -40,13 +41,21 @@ def test_session_id_is_url_encoded():
 
 def test_settings_from_env_reads_values():
     settings = Settings.from_env(
-        {ENDPOINT_ENV: f" {ENDPOINT} ", SESSION_ID_ENV: "sess-9"}
+        {
+            ENDPOINT_ENV: f" {ENDPOINT} ",
+            SESSION_ID_ENV: "sess-9",
+            TENANT_ID_ENV: " tenant-42 ",
+        }
     )
     assert settings.invocations_endpoint == ENDPOINT
     assert settings.agent_session_id == "sess-9"
+    assert settings.tenant_id == "tenant-42"
 
 
 def test_settings_from_env_treats_blank_as_missing():
-    settings = Settings.from_env({ENDPOINT_ENV: "   ", SESSION_ID_ENV: ""})
+    settings = Settings.from_env(
+        {ENDPOINT_ENV: "   ", SESSION_ID_ENV: "", TENANT_ID_ENV: "  "}
+    )
     assert settings.invocations_endpoint is None
     assert settings.agent_session_id is None
+    assert settings.tenant_id is None

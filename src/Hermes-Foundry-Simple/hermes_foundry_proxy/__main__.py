@@ -1,6 +1,8 @@
 # ============================================================
 # 【檔案說明】CLI 入口:python -m hermes_foundry_proxy
-# 1. logging 全部導向 stderr,stdout 只留給 JSON-RPC response
+# 1. logging 全部導向 stderr,stdout 只留給 JSON-RPC frame
+#    (response 與 method="event" 通知;TUI 靠啟動時的
+#    gateway.ready 事件判定 gateway 就緒)
 # 2. stdin/stdout 改用 UTF-8(Windows 主控台預設編碼可能不是 UTF-8)
 # 3. 啟動後持續從 stdin 讀取請求直到 EOF;Ctrl+C 優雅退出
 # ============================================================

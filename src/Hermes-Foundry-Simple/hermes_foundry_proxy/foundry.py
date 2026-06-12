@@ -88,7 +88,15 @@ class FoundryClient:
                 from azure.identity import DefaultAzureCredential
 
                 self._credential = DefaultAzureCredential()
-            self._cached_token = self._credential.get_token(TOKEN_SCOPE)
+            # Foundry 資源的 tenant 可能不是 az CLI 預設訂閱的 tenant;
+            # 不指定時 AzureCliCredential 會拿 home/預設 tenant 的 token,
+            # Foundry 端會以「不存在的 principal」403 拒絕。
+            token_kwargs = {}
+            if self._settings.tenant_id:
+                token_kwargs["tenant_id"] = self._settings.tenant_id
+            self._cached_token = self._credential.get_token(
+                TOKEN_SCOPE, **token_kwargs
+            )
         except Exception as exc:
             raise AuthError(
                 "Failed to acquire an Azure access token via DefaultAzureCredential. "
